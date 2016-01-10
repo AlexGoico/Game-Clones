@@ -3,46 +3,48 @@ var game = new Phaser.Game(640, 480);
 var Dodger = function() {
   this.player = null,
   this.enemies = null,
-  this.gameOver = false;
+
+  this.gameOver = false,
+
+  this.spawnTime = 2000,
+  this.elapsedTime = 0,
+
+  this.score = 0,
+  this.scoreText = null;
 };
 
 Dodger.prototype = {
-  preload : function() {
-    
-  },
-  
   create : function() {
-    game.physics.startSystem(Phaser.Physics.ARCADE);
+    this.scoreText = game.add.text(16, 16, 'Score: 0',
+                                   { fontSize: '16px', fill: '#FFF' });
+    this.scoreText.x = gameHCenter(this.scoreText);
+
+    this.physics.startSystem(Phaser.Physics.ARCADE);
     
     // Texture Rectangle to Rectangle Sprite
     var texture = rectTexture('player', 'green', 16, 16, false);
     // Create and center sprite
-    this.player = game.add.sprite(game.width  / 2 - texture.width / 2,
-                                  game.height / 2 - texture.height / 2,
-                                  texture);
+    this.player = this.add.sprite(gameHCenter(texture),
+                                  gameVCenter(texture), texture);
 
-    game.physics.arcade.enable(this.player);
+    this.physics.arcade.enable(this.player);
     this.player.body.collideWorldBounds = true;
 
     // Callback cannot find Dodger within its function scope thus
     // Dodger properties need to be temporarily attached to create's this.
     var player = this.player;
-    game.input.addMoveCallback(function(pointer, x, y, down) {
+    this.input.addMoveCallback(function(pointer, x, y, down) {
       player.x = x - player.width / 2;
       player.y = y - player.height / 2;
     });
 
-    this.spawnTime = 2000;
-    this.elapsedTime = 0;
-
     this.enemies = game.add.group();
     this.enemies.enableBody = true;
     this.spawnEnemy();
-
   },
   
   update : function() {
-    game.physics.arcade.overlap(this.player, this.enemies, this.gameOverState,
+    this.physics.arcade.overlap(this.player, this.enemies, this.gameOverState,
                                 null, this);
     if (!this.gameOver) {
       if (this.elapsedTime + game.time.elapsedMS < this.spawnTime)
@@ -55,25 +57,47 @@ Dodger.prototype = {
   },
 
   spawnEnemy : function () {
-    var texture = rectTexture('enemy', 'red', 32, 32, true);
-    var enemy = this.enemies.create(game.rnd.integerInRange(0, game.width-1),
-                                    -texture.height, texture);
+    var sizes = [8, 16, 32, 64];
+    var x = game.rnd.pick(sizes);
+    var y = game.rnd.pick(sizes);
+    var texture = rectTexture('enemy', 'red', x, y, true);
+    var enemy =
+          this.enemies.create(this.rnd.integerInRange(0, this.game.width-1),
+                              -texture.height, texture);
     enemy.checkWorldBounds = true;
-    enemy.body.gravity.y = 50;
-    enemy.events.onOutOfBounds.add(function(enemy) {
-      enemy.destroy();
-      console.log("Destroyed...");
-      this.spawnEnemy();
-    }, this);
+    enemy.body.gravity.y = this.rnd.integerInRange(50, 200);
+    enemy.events.onOutOfBounds.add(this.enemyDeath, this);
+  },
+
+  enemyDeath : function (enemy) {
+    enemy.destroy();
+    this.score += 10;
+    this.scoreText.text = 'Score: ' + this.score;
+    this.spawnEnemy();
   },
 
   gameOverState : function () {
-    console.log("overlaps...");
-    game.add.text(16, 16, 'Game Over', { fontSize: '32px', fill: '#FFF' });
+    var gameOver = this.add.text(16, 16, 'Game Over',
+                                 { fontSize: '32px', fill: '#FFF' });
+    var totalHeight = gameOver.height + gameOver.height / 2 +
+                      this.scoreText.height;
+    gameOver.x = gameHCenter(gameOver);
+    gameOver.y = gameVCenter(gameOver) - totalHeight / 2;
+    this.scoreText.y = game.height / 2 + gameOver.height - totalHeight / 2;
+
+    
     this.gameOver = true;
     this.enemies.destroy();
   }
 };
+
+function gameHCenter(obj) {
+  return game.width / 2 - obj.width / 2;
+}
+
+function gameVCenter(obj) {
+  return game.height / 2 - obj.height / 2;
+}
 
 function rectTexture(key, color, w, h, fill) {
   var texture = new Phaser.BitmapData(game, key, w, h);
