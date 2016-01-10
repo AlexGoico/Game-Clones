@@ -15,28 +15,23 @@ var Dodger = function() {
 
 Dodger.prototype = {
   create : function() {
-    this.scoreText = game.add.text(16, 16, 'Score: 0',
+    this.scoreText = game.add.text(16, 16, 'Dodged: 0',
                                    { fontSize: '16px', fill: '#FFF' });
     this.scoreText.x = gameHCenter(this.scoreText);
 
     this.physics.startSystem(Phaser.Physics.ARCADE);
     
-    // Texture Rectangle to Rectangle Sprite
     var texture = rectTexture('player', 'green', 16, 16, false);
-    // Create and center sprite
     this.player = this.add.sprite(gameHCenter(texture),
                                   gameVCenter(texture), texture);
 
     this.physics.arcade.enable(this.player);
     this.player.body.collideWorldBounds = true;
 
-    // Callback cannot find Dodger within its function scope thus
-    // Dodger properties need to be temporarily attached to create's this.
-    var player = this.player;
     this.input.addMoveCallback(function(pointer, x, y, down) {
-      player.x = x - player.width / 2;
-      player.y = y - player.height / 2;
-    });
+      this.player.x = x - this.player.width / 2;
+      this.player.y = y - this.player.height / 2;
+    }, this);
 
     this.enemies = game.add.group();
     this.enemies.enableBody = true;
@@ -65,14 +60,14 @@ Dodger.prototype = {
           this.enemies.create(this.rnd.integerInRange(0, this.game.width-1),
                               -texture.height, texture);
     enemy.checkWorldBounds = true;
-    enemy.body.gravity.y = this.rnd.integerInRange(50, 200);
+    enemy.body.velocity.y = this.rnd.integerInRange(200, 500);
     enemy.events.onOutOfBounds.add(this.enemyDeath, this);
   },
 
   enemyDeath : function (enemy) {
     enemy.destroy();
-    this.score += 10;
-    this.scoreText.text = 'Score: ' + this.score;
+    this.score++;
+    this.scoreText.text = 'Dodged: ' + this.score;
     this.spawnEnemy();
   },
 
