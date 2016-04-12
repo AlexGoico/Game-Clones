@@ -1,0 +1,22 @@
+{
+  "name": "49_game_challenge",
+  "version": "1.0.0",
+  "description": "49 Game Clone Implementations =============================",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/typedeph/Game-Clones.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/typedeph/Game-Clones/issues"
+  },
+  "homepage": "https://github.com/typedeph/Game-Clones#readme",
+  "devDependencies": {
+    "mocha": "^2.4.5"
+  }
+}
