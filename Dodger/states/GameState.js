@@ -13,13 +13,15 @@ Dodger.GameState = function() {
 
 Dodger.GameState.prototype = {
   create : function() {
+    this.texturePlugin = this.game.plugins.add(Phaser.Plugin.PrimitiveTextures);
+
     this.scoreText = game.add.text(16, 16, 'Dodged: 0',
                                    { fontSize: '16px', fill: '#FFF' });
     this.scoreText.x = gameHCenter(this.scoreText);
 
     this.physics.startSystem(Phaser.Physics.ARCADE);
     
-    var texture = rectTexture('player', 'green', 16, 16, false);
+    var texture = this.texturePlugin.rectTexture('player', 'green', 16, 16, false);
     this.player = this.add.sprite(gameHCenter(texture),
                                   gameVCenter(texture), texture);
 
@@ -65,7 +67,7 @@ Dodger.GameState.prototype = {
     var sizes = [8, 16, 32, 64];
     var x = game.rnd.pick(sizes);
     var y = game.rnd.pick(sizes);
-    var texture = rectTexture('enemy', 'red', x, y, true);
+    var texture = this.texturePlugin.rectTexture('enemy', 'red', x, y, true);
     var enemy =
           this.enemies.create(this.rnd.integerInRange(0, this.game.width-1),
                               -texture.height, texture);
@@ -88,20 +90,4 @@ function gameHCenter(obj) {
 
 function gameVCenter(obj) {
   return game.height / 2 - obj.height / 2;
-}
-
-function rectTexture(key, color, w, h, fill) {
-  var texture = new Phaser.BitmapData(game, key, w, h);
-  if (fill) {
-    texture.context.fillStyle = color;
-    texture.context.fillRect(0, 0, w, h);
-  }
-  else {
-    texture.context.lineWidth = 2;
-    texture.context.strokeStyle = color;
-    texture.context.rect(0, 0, w, h);
-    texture.context.stroke();
-  }
-
-  return texture;
 }
