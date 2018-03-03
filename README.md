@@ -6,7 +6,7 @@ blog post: http://inventwithpython.com/blog/2012/02/20/i-need-practice-programmi
 
 Completed
 ---------
-* [Dodger](typedeph.github.io/Game-Clones/Dodger/dodger.html)
+* [Dodger](http://alexgoico.github.io/Game-Clones/Dodger/dodger.html)
 
 In Progress
 -----------
